@@ -25,7 +25,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         this.botToken = props.getProperty("bot.token");
         this.botName = props.getProperty("bot.name");
-
+//
     }
     @Override
     public void onUpdateReceived(Update update) {
