@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pyaterochka {
-    public static void main(String[] args) throws MalformedURLException {
+    public String parseFiveyorochka() throws MalformedURLException {
         List<String> data = new ArrayList<>();
         URL url = new URL("https://promo.5ka.ru");
         Document pages = JsoupDocumentUtil.getDocumentFromUrl(String.valueOf(url));
@@ -18,7 +18,10 @@ public class Pyaterochka {
         for (Element element : product) {
             data.add(element.text());
         }
-    for(var el: data)
-        System.out.println(el + '\n');
+        /*
+        for (var el : data)
+           System.out.println(el + '\n');
+        */
+        return String.join("\n", data);
     }
 }

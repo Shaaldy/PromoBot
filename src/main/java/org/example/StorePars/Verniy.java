@@ -15,10 +15,9 @@ import java.util.List;
 import java.util.Properties;
 
 public class Verniy {
-    public static void main(String[] args) throws MalformedURLException {
+    public String parseVerniy() throws MalformedURLException {
         String url = "https://www.verno-info.ru/products";
         List<String> data = new ArrayList<>();
-
         Document pages = JsoupDocumentUtil.getDocumentFromUrl(url);
         Elements product = pages.select("body > div > main > section > div.products-list > div > div");
 
@@ -26,7 +25,11 @@ public class Verniy {
             data.add(element.text());
         }
 
-        for (var el : data)
-            System.out.println(el + '\n');
+
+        //for (var el : data)
+          //  System.out.println(el + '\n');
+        //bdTest.addData(data);
+
+        return String.join("\n", data);
     }
 }
