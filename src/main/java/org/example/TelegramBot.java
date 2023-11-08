@@ -1,8 +1,6 @@
 package org.example;
 
-import org.example.StorePars.BD_test;
-import org.example.StorePars.Pyaterochka;
-import org.example.StorePars.Verniy;
+import org.example.StorePars.ParseStore;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -10,7 +8,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class TelegramBot extends TelegramLongPollingBot {
@@ -32,22 +31,58 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText();
+            String messageText = update.getMessage().getText().toLowerCase();
+            System.out.println(messageText + "\n");
             long chatId = update.getMessage().getChatId();
             if (messageText.startsWith("/")) {
                 Command command = new Command();
                 if (command.hasCommand(messageText)) {
                     String botResponse = command.getResponse(messageText);
                     sendMessage(chatId, botResponse);
-                } else {
+                } else if (messageText.contains("/all")) {
+                    dataSend(chatId, "", messageText);
+                }
+                else {
                     sendMessage(chatId, command.getResponse("default"));
                 }
             } else {
-                String data = parseStoreData(messageText);
-                sendMessage(chatId, data);
+                String noKeykeyWord = "";
+                if(messageText.contains("пятерочка")){
+                    dataSend(chatId, noKeykeyWord, "5");
+                } else if (messageText.contains("верный")) {
+                    dataSend(chatId, noKeykeyWord, "v");
+                } else if (messageText.contains("перекресток")) {
+                    dataSend(chatId, noKeykeyWord, "p");
+                }
+                else dataSend(chatId, messageText, "");
             }
 
         }
+    }
+
+    private void dataSend(long chatId, String keyWord, String flag) {
+        List<String> data = new ArrayList<>();
+        try {
+            if (flag.isEmpty()) {
+                data.add(parseStoreData("Пятерочка", keyWord));
+                data.add(parseStoreData("Верный", keyWord));
+                data.add(parseStoreData("Перекресток", keyWord));
+            } else {
+                if (flag.contains("5")) {
+                    data.add(parseStoreData("Пятерочка", keyWord));
+                }
+                if (flag.contains("v")) {
+                    data.add(parseStoreData("Верный", keyWord));
+                }
+                if (flag.contains("p")) {
+                    data.add(parseStoreData("Перекресток", keyWord));
+                }
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        sendMessage(chatId, String.join("\n", data));
     }
 
     private void sendMessage(long chatId, String textToSend) {
@@ -62,18 +97,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         System.out.println("Bot: " + textToSend);
     }
 
-    private String parseStoreData(String storeName) {
-        try {
-            if ("Пятерочка".equalsIgnoreCase(storeName)) {
-                Pyaterochka pyaterochka = new Pyaterochka();
-                return pyaterochka.parseFiveyorochka();
-            } else if ("Верный".equalsIgnoreCase(storeName)) {
-                Verniy verniy = new Verniy();
-                return verniy.parseVerniy();
-            } else return "Магазин не найден";
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+    private String parseStoreData(String shopName, String keyWord) throws IOException {
+        ParseStore shop = new ParseStore();
+        return shop.ShopParser(shopName, keyWord);
     }
 
     @Override
