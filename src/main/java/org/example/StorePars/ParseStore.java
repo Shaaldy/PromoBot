@@ -25,7 +25,6 @@ public class ParseStore {
         ParseShop Shop = new ParseShop(name, url, keyWord.toLowerCase());
         Shop.setProduct(cssQuery);
         Shop.dataPush();
-        Shop.Cout();
         return Shop.toString();
     }
 
