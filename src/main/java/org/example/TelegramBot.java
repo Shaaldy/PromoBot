@@ -3,6 +3,7 @@ package org.example;
 import org.example.StorePars.ParseStore;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -32,60 +33,80 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
+        if(update.hasCallbackQuery()){
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+            String data = callbackQuery.getData();
+            handleButtonPress(data, callbackQuery.getMessage().getChatId());
+        }
+        else if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText().toLowerCase();
-            System.out.println(messageText + "\n");
             long chatId = update.getMessage().getChatId();
-            if (messageText.startsWith("/")) {
-                Command command = new Command();
-                if (command.hasCommand(messageText)) {
-                    String botResponse = command.getResponse(messageText);
-                    sendMessage(chatId, botResponse);
-                } else if (messageText.contains("/all")) {
-                    dataSend(chatId, "", messageText.replaceFirst("/all\\s*", ""));
-                }
-                else {
-                    sendMessage(chatId, command.getResponse("default"));
-                }
-            } else {
-                String NoKeyWord = "";
-                if(messageText.contains("пятерочка") || messageText.contains("пятёрочка")){
-                    dataSend(chatId, NoKeyWord, "5");
-                } else if (messageText.contains("верный")) {
-                    dataSend(chatId, NoKeyWord, "v");
-                } else if (messageText.contains("перекресток") || messageText.contains("перекрёсток")) {
-                    dataSend(chatId, NoKeyWord, "p");
-                }
-                else dataSend(chatId, messageText, "");
-            }
+            messageProcessing(chatId, messageText);
 
         }
     }
 
-   public static SendMessage InlineKeyBoard(long chatId){
+   public void sendInlineKeyBoard(long chatId){
+
+       InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
+       List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+       List<InlineKeyboardButton> row1 = new ArrayList<>();
+
+       InlineKeyboardButton button11 = new InlineKeyboardButton();
+
+       button11.setText("Start");
+       button11.setCallbackData("/start");
+
+       InlineKeyboardButton button12 = new InlineKeyboardButton();
+       button12.setText("Help");
+       button12.setCallbackData("/help");
+
+       InlineKeyboardButton button13 = new InlineKeyboardButton();
+       button13.setText("Stores");
+       button13.setCallbackData("/store");
+       row1.add(button11);
+       row1.add(button12);
+       row1.add(button13);
+
+       List<InlineKeyboardButton> row2 = new ArrayList<>();
+
+       InlineKeyboardButton button21 = new InlineKeyboardButton();
+       button21.setText("Пятёрочка");
+       button21.setCallbackData("пятерочка");
+
+       InlineKeyboardButton button22 = new InlineKeyboardButton();
+       button22.setText("Верный");
+       button22.setCallbackData("верный");
+
+       InlineKeyboardButton button23 = new InlineKeyboardButton();
+       button23.setText("Перекрёсток");
+       button23.setCallbackData("перекресток");
+
+       row2.add(button21);
+       row2.add(button22);
+       row2.add(button23);
+
+       keyboard.add(row1);
+       keyboard.add(row2);
+
+       markup.setKeyboard(keyboard);
+
        SendMessage message = new SendMessage();
        message.setChatId(chatId);
        message.setText("Buttons");
-
-       InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-
-       List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-
-       List<InlineKeyboardButton> rowInline = new ArrayList<>();
-
-       InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
-
-       inlineKeyboardButton1.setText("/start");
-
-       inlineKeyboardButton1.setCallbackData("START");
-
-       rowInline.add(inlineKeyboardButton1);
-       rowsInline.add(rowInline);
-
-       markupInline.setKeyboard(rowsInline);
-       message.setReplyMarkup(markupInline);
-       return message;
+       message.setReplyMarkup(markup);
+       try{
+           execute(message);
+       }catch (TelegramApiException e){
+           e.printStackTrace();
+       }
    }
+    private void handleButtonPress(String data, long chatId) {
+
+        messageProcessing(chatId, data);
+    }
 
 
     private void dataSend(long chatId, String keyWord, String flag) {
@@ -139,6 +160,34 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendSingleMessage(chatId, chunk);
             }
         }
+    }
+
+    private void messageProcessing(long chatId, String messageText){
+        System.out.println(messageText + "\n");
+        if (messageText.startsWith("/")) {
+            Command command = new Command();
+            if (command.hasCommand(messageText)) {
+                String botResponse = command.getResponse(messageText);
+                sendMessage(chatId, botResponse);
+            } else if (messageText.contains("/all")) {
+                dataSend(chatId, "", messageText.replaceFirst("/all\\s*", ""));
+            } else if (messageText.contains("/keyboard")) {
+                sendInlineKeyBoard(chatId);
+            } else {
+                sendMessage(chatId, command.getResponse("default"));
+            }
+        } else {
+            String NoKeyWord = "";
+            if(messageText.contains("пятерочка") || messageText.contains("пятёрочка")){
+                dataSend(chatId, NoKeyWord, "5");
+            } else if (messageText.contains("верный")) {
+                dataSend(chatId, NoKeyWord, "v");
+            } else if (messageText.contains("перекресток") || messageText.contains("перекрёсток")) {
+                dataSend(chatId, NoKeyWord, "p");
+            }
+            else dataSend(chatId, messageText, "");
+        }
+
     }
     private String parseStoreData(String shopName, String keyWord) throws IOException {
         return ParseStore.ShopParser(shopName, keyWord);
