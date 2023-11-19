@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Command {
-    private Map<String, String> commands;
+    private final Map<String, String> commands;
 
     public Command() {
         commands = new HashMap<>();
@@ -26,7 +26,4 @@ public class Command {
         return commands.containsKey(command);
     }
 
-    public void addDataCommand(String dataString, String nameMagazines) {
-        commands.put(nameMagazines, dataString);
-    }
 }
