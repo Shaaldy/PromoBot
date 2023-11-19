@@ -1,31 +1,56 @@
 package org.example;
 
+import org.example.StorePars.ParseStore;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TelegramBotTest{
 
 
     @Test
     public void testStart() {
-        String ans = "Привет! Я Акция и готова помочь тебе найти товары по акции в нашем магазине. Просто напиши мне, что тебе нужно, и я с радостью помогу тебе найти лучшие предложения. А еще у меня есть много полезных советов и рекомендаций по выбору товаров. Не стесняйся, пиши мне! \uD83D\uDE0A\uD83D\uDECD\uFE0F";
+        String ans = "Привет! Я Акция и готова помочь тебе найти товары по акции в нашем магазине. Просто напиши мне, что тебе нужно, и я с радостью помогу тебе найти лучшие предложения. А еще у меня есть много полезных советов и рекомендаций по выбору товаров. Не стесняйся, пиши мне /keyboard! \uD83D\uDE0A\uD83D\uDECD\uFE0F";
         Command command = new Command();
         Assert.assertEquals(ans, command.getResponse("/start"));
     }
 
     @Test
     public void testHelp() {
-        String ans = "Команды: /start - начать диалог с ботом, /store - ассортимент магазинов";
+        String ans = "Команды: /start - начать диалог с ботом, \n /store - ассортимент магазинов, \n /all - выводит весь список товаров по акции (доступны флаги -5, -p, -v), \n Название товара - выводит конкретный товар по акции, если он в наличии, \n Название магазина - выводит все товары по акции в этом магазине";
         Command command = new Command();
         Assert.assertEquals(ans, command.getResponse("/help"));
     }
 
     @Test
     public void testStore() {
-        String ans = "Магнит (пока в разработке)";
+        String ans = "Пятерочка, верный, перекресток. Какой магазин вас интересует?";
         Command command = new Command();
         Assert.assertEquals(ans, command.getResponse("/store"));
     }
+
+    @Test
+    public void testFilter() throws IOException {
+        String ans = "Пятерочка\n" +
+                "Такого товара нет или ошибка в названии, для того чтобы вывести весь список товаров напишите /ALL\n" +
+                "Верный\n" +
+                "Такого товара нет или ошибка в названии, для того чтобы вывести весь список товаров напишите /ALL\n" +
+                "Перекресток\n" +
+                "Такого товара нет или ошибка в названии, для того чтобы вывести весь список товаров напишите /ALL";
+
+        String keyWord = "Тестовый запрос";
+        List<String> data = new ArrayList<>();
+        data.add(ParseStore.ShopParser("Пятерочка", keyWord));
+        data.add(ParseStore.ShopParser("Верный", keyWord));
+        data.add(ParseStore.ShopParser("Перекресток", keyWord));
+        System.out.println(String.join("\n", data));
+        Assert.assertEquals(ans, String.join("\n", data));
+    }
+
+
 
     @Test
     public void testDefault() {
