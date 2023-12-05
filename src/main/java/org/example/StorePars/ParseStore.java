@@ -2,12 +2,14 @@ package org.example.StorePars;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ParseStore {
     public static String ShopParser(String name, String keyWord) throws IOException {
@@ -35,6 +37,7 @@ class ParseShop {
     String storeName;
     String keyWord;
     String url;
+
     private Elements product;
     List<String> data = new ArrayList<>();
 
@@ -48,6 +51,7 @@ class ParseShop {
     void setProduct(String cssQuery) throws IOException {
         Document pages = getDocumentFromUrl_func(); //
         product = pages.select(cssQuery);
+        System.out.println(product);
     }
 
     public List<String> Filter() {
@@ -68,7 +72,12 @@ class ParseShop {
     public void dataPush() {
 
         for (Element element : product) {
-            data.add(element.text());
+            if (storeName.equals("Пятерочка") || storeName.equals("Верный")){
+                String updatePrice = formatPrice(element.text());
+                data.add(updatePrice);
+            }
+            else
+                data.add(element.text());
         }
     }
 
@@ -77,6 +86,31 @@ class ParseShop {
                 .referrer("https://www.google.com").get();
     }
 
+
+    private static String formatPrice(String input) {
+        Pattern pattern = Pattern.compile("(\\d+)([^\\d\\s]+)?");
+        Matcher matcher = pattern.matcher(input);
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            int price = Integer.parseInt(matcher.group(1));
+            String nextWord = matcher.group(2);
+
+            if (price % 100 == 99 || price % 100 == 90) {
+                if (nextWord == null || !nextWord.trim().isEmpty()) {
+                    double valueInRubles = price / 100.0; // Переводим копейки в рубли
+                    matcher.appendReplacement(result, String.format("%.2f%s", valueInRubles, nextWord != null ? nextWord : ""));
+                } else {
+                    matcher.appendReplacement(result, matcher.group());
+                }
+            } else {
+                matcher.appendReplacement(result, matcher.group());
+            }
+        }
+
+        matcher.appendTail(result);
+        return result.toString();
+    }
     public String toString() {
         return storeName + "\n" + String.join("\n", Filter());
     }
