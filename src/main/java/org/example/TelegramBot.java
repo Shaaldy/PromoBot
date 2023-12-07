@@ -7,25 +7,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 public class TelegramBot extends TelegramLongPollingBot {
     private final String botToken;
     private final String botName;
 
-    public TelegramBot() {
-        Properties props = new Properties();
-        try (InputStream input = TelegramBot.class.getClassLoader().getResourceAsStream("config.properties")) {
-            props.load(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        this.botToken = props.getProperty("bot.token");
-        this.botName = props.getProperty("bot.name");
-//
+    public TelegramBot(String botName, String botToken) {
+        this.botToken = botToken;
+        this.botName = botName;
     }
 
     @Override
@@ -128,7 +119,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     }
     private String parseStoreData(String shopName, String keyWord) throws IOException {
-        return ParseStore.ShopParser(shopName, keyWord);
+        return ParseStore.parse(shopName, keyWord);
     }
 
     @Override

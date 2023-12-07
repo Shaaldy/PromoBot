@@ -44,14 +44,12 @@ public class TelegramBotTest{
 
         String keyWord = "Тестовый запрос";
         List<String> data = new ArrayList<>();
-        data.add(ParseStore.ShopParser("Пятерочка", keyWord));
-        data.add(ParseStore.ShopParser("Верный", keyWord));
-        data.add(ParseStore.ShopParser("Перекресток", keyWord));
+        data.add(ParseStore.parse("Пятерочка", keyWord));
+        data.add(ParseStore.parse("Верный", keyWord));
+        data.add(ParseStore.parse("Перекресток", keyWord));
         System.out.println(String.join("\n", data));
         Assert.assertEquals(ans, String.join("\n", data));
     }
-
-
 
     @Test
     public void testDefault() {
