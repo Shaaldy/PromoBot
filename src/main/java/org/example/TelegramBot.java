@@ -29,12 +29,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-
     private void handleButtonPress(String data, long chatId) {
 
         messageProcessing(chatId, data);
     }
-
 
     private void dataSend(long chatId, String keyWord, String flag) {
         List<String> data = new ArrayList<>();
@@ -60,6 +58,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         sendMessage(chatId, String.join("\n", data));
     }
+
     private void sendSingleMessage(long chatId, String textToSend) {
 
         SendMessage sendMessage = new SendMessage();
@@ -77,15 +76,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         System.out.println("Bot: " + textToSend);
     }
 
-    private void sendMessage(long chatId, String textToSend){
+    private void sendMessage(long chatId, String textToSend) {
         int maxMessageLength = 4096;
         int textLength = textToSend.length();
 
-        if(textLength <= maxMessageLength){
+        if (textLength <= maxMessageLength) {
             sendSingleMessage(chatId, textToSend);
-        }
-        else{
-            for(int i = 0; i < textLength; i+=maxMessageLength){
+        } else {
+            for (int i = 0; i < textLength; i += maxMessageLength) {
                 int end = Math.min(i + maxMessageLength, textLength);
                 String chunk = textToSend.substring(i, end);
                 sendSingleMessage(chatId, chunk);
@@ -93,7 +91,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void messageProcessing(long chatId, String messageText){
+    private void messageProcessing(long chatId, String messageText) {
         System.out.println(messageText + "\n");
         if (messageText.startsWith("/")) {
             Command command = new Command();
@@ -107,17 +105,17 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         } else {
             String NoKeyWord = "";
-            if(messageText.contains("пятерочка") || messageText.contains("пятёрочка")){
+            if (messageText.contains("пятерочка") || messageText.contains("пятёрочка")) {
                 dataSend(chatId, NoKeyWord, "5");
             } else if (messageText.contains("верный")) {
                 dataSend(chatId, NoKeyWord, "v");
             } else if (messageText.contains("перекресток") || messageText.contains("перекрёсток")) {
                 dataSend(chatId, NoKeyWord, "p");
-            }
-            else dataSend(chatId, messageText, "");
+            } else dataSend(chatId, messageText, "");
         }
 
     }
+
     private String parseStoreData(String shopName, String keyWord) throws IOException {
         return ParseStore.parse(shopName, keyWord);
     }
