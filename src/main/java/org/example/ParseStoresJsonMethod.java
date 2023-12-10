@@ -8,27 +8,44 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ParseStoresJsonMethod {
     public static void main(String[] args) throws IOException {
-        Parse5ka parse5ka = new Parse5ka();
-        String par = parse5ka.parse();
-        parse5ka.makeItem(par);
+        ToParse toParse = new ToParse("Пятерочка");
+        String par = toParse.parse();
+        toParse.makeItem(par);
     }
 }
 
-class Parse5ka {
-    Parse5ka() {
-        String url = "https://skidkaonline.ru/apiv3/products/?limit=310&offset=0&shop_id=9&city_id=49&fields=id,name,name2,shops_ids,url,noted,discount_url,discount_name,date,notalladdr,image336,imagefull,brands,pricebefore,priceafter,discount_type,discount,externalurl,countPlus,countMinus,comments,desc,color,daystitle,liked,started_today,published_today";
-        this.shopId = getShopId(url);
-        this.city_id = getCityId(url);
+class ToParse {
+
+    private final String url;
+
+    ToParse(String storeName) {
+        Map<String, Integer> idByStore = new HashMap<>();
+        idByStore.put("Пятерочка", 9);
+        idByStore.put("Магнит у дома", 2);
+        idByStore.put("Магнит семейный", 26);
+        idByStore.put("Манит Экстра", 2391);
+        idByStore.put("Алёнка", 1840);
+        idByStore.put("Ариант", 852);
+        idByStore.put("Ашан", 1465);
+        idByStore.put("Бристоль", 720);
+        idByStore.put("Кировский", 112);
+        idByStore.put("Верный", 39);
+        idByStore.put("КБ", 100);
+        idByStore.put("Лента", 361);
+        int shopId = idByStore.get(storeName);
+        this.url = String.format("https://skidkaonline.ru/apiv3/products/?limit=600&offset=0&shop_id=%s&city_id=49&fields=id,name,name2,shops_ids,url,noted,discount_url,discount_name,date,notalladdr,image336,imagefull,brands,pricebefore,priceafter,discount_type,discount,externalurl,countPlus,countMinus,comments,desc,color,daystitle,liked,started_today,published_today", shopId);
+        int city_id = getCityId(url);
     }
 
-    private final int shopId;
-    private final int city_id;
+
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -56,7 +73,7 @@ class Parse5ka {
 
     String parse() throws IOException {
 
-        Connection.Response response = Jsoup.connect(String.format("https://skidkaonline.ru/apiv3/products/?limit=206   а   &offset=0&shop_id=%s&city_id=%s&fields=id,name,name2,shops_ids,url,noted,discount_url,discount_name,date,notalladdr,image336,imagefull,brands,pricebefore,priceafter,discount_type,discount,externalurl,countPlus,countMinus,comments,desc,color,daystitle,liked,started_today,published_today", shopId, city_id))
+        Connection.Response response = Jsoup.connect(url)
                 .header("Accept", "*/*")
                 .header("Accept-Language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
                 .header("Connection", "keep-alive")
@@ -98,8 +115,10 @@ class Parse5ka {
             String priceafter = item.getPriceafter();
             String startdate = item.getStartdate();
             String enddate = item.getEnddate();
-            System.out.println("Id: " + id + '\n' + "Name: " + name + '\n' + "Цена до " + pricebefore + '\n' + "Цена после " + priceafter + '\n' + "Даты - "  + startdate + " - " + enddate);
+            String image = item.getImage();
+            System.out.println("Id: " + id + '\n' + "Name: " + name + '\n' + "Цена до " + pricebefore + '\n' + "Цена после " + priceafter + '\n' + "Даты - "  + startdate + " - " + enddate + '\n' + image);
         }
+        System.out.println(itemList.size());
     }
 
 }
@@ -119,6 +138,9 @@ class Item {
     private String enddate;
     @JsonProperty("name")
     private String name;
+
+    @JsonProperty("imagefull")
+    private Image image;
 
     public String getId() {
         return this.id;
@@ -144,6 +166,8 @@ class Item {
         return this.name;
     }
 
+    public String getImage(){ return image.getSrs(); }
+
 }
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Items{
@@ -152,4 +176,10 @@ class Items{
     public List<Item> getProducts() {
         return products;
     }
+}
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Image{
+    @JsonProperty("src")
+    private String srs;
+    public String getSrs(){return this.srs; }
 }
