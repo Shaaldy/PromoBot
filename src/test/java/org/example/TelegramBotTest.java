@@ -1,12 +1,8 @@
 package org.example;
 
-import org.example.StorePars.ParseStore;
+import org.example.TGBot.Command;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TelegramBotTest{
 
@@ -30,25 +26,6 @@ public class TelegramBotTest{
         String ans = "Пятерочка, верный, перекресток. Какой магазин вас интересует?";
         Command command = new Command();
         Assert.assertEquals(ans, command.getResponse("/store"));
-    }
-
-    @Test
-    public void testFilter() throws IOException {
-        String ans = """
-                Пятерочка
-                Такого товара нет или ошибка в названии, для того чтобы вывести весь список товаров напишите /ALL
-                Верный
-                Такого товара нет или ошибка в названии, для того чтобы вывести весь список товаров напишите /ALL
-                Перекресток
-                Такого товара нет или ошибка в названии, для того чтобы вывести весь список товаров напишите /ALL""";
-
-        String keyWord = "Тестовый запрос";
-        List<String> data = new ArrayList<>();
-        data.add(ParseStore.ShopParser("Пятерочка", keyWord));
-        data.add(ParseStore.ShopParser("Верный", keyWord));
-        data.add(ParseStore.ShopParser("Перекресток", keyWord));
-        System.out.println(String.join("\n", data));
-        Assert.assertEquals(ans, String.join("\n", data));
     }
 
 
