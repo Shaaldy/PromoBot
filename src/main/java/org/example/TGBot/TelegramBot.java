@@ -1,5 +1,6 @@
 package org.example.TGBot;
 
+import org.example.JsonPars.JsonProducts;
 import org.example.JsonPars.ParseStoresJsonMethod;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -55,7 +56,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId, command.getResponse("default"));
             }
         } else {
-            String data = null;
+            List<List<JsonProducts.Item>> data = new ArrayList<>();
             if (messageText.length() <= 100 &&
                     messageText.trim().split("\\s+").length >= 3 &&
                     messageText.contains("@")) {
@@ -88,8 +89,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                     data = ParseStoresJsonMethod.JsonParser(stores);
                 }
             }
-            assert data != null;
-            sendMessage(chatId, data);
+            for(List<JsonProducts.Item> itemList: data){
+                for(JsonProducts.Item item: itemList){
+                    sendSingleMessage(chatId, item.toString());
+                }
+            }
         }
 
     }

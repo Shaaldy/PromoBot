@@ -6,36 +6,30 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+
+import static org.example.JsonPars.JsonProducts.*;
 
 public class ParseStoresJsonMethod {
 
-    public static String JsonParser(List<String> storeNames, String keyWord) throws IOException {
-        StringBuilder result = new StringBuilder();
-
+    public static List<List<Item>> JsonParser(List<String> storeNames, String keyWord) throws IOException {
+        List<List<Item>> result = new ArrayList<>();
         for (String storeName : storeNames) {
-            result.append("\n\n`").append(storeName).append("`\n\n");
+            //result.append("\n\n`").append(storeName).append("`\n\n");
             ToParse toParse = new ToParse(storeName.toLowerCase(), keyWord);
-            List<JsonProducts.Item> items = toParse.filter();
-            for (JsonProducts.Item item : items) {
-                result.append(item.toString()).append("\n\n");
-            }
-
+            List<Item> items = toParse.filter();
+            result.add(items);
         }
 
-        return result.toString();
+        return result;
     }
 
-    public static String JsonParser(List<String> storeNames) throws IOException{
+    public static List<List<Item>> JsonParser(List<String> storeNames) throws IOException {
         return JsonParser(storeNames, "");
     }
 
     private static final Map<String, Integer> idByStore = new HashMap<>();
+
     static {
         idByStore.put("пятерочка", 9);
         idByStore.put("магнит", 2);
@@ -53,13 +47,11 @@ public class ParseStoresJsonMethod {
         idByStore.put("окей", 41);
         idByStore.put("пивко", 1357);
     }
-    public static String JsonParser(String keyWord) throws IOException{
+
+    public static List<List<Item>> JsonParser(String keyWord) throws IOException {
         List<String> storeNames = new ArrayList<>(idByStore.keySet());
         return JsonParser(storeNames, keyWord);
     }
-
-
-
 
 
     static class ToParse implements Filterable {
@@ -69,7 +61,7 @@ public class ParseStoresJsonMethod {
         private final String keyWord;
         private final String storeName;
 
-        List<JsonProducts.Item> itemList;
+        List<Item> itemList;
 
         ToParse(String storeName, String keyWord) throws IOException {
             Integer shopId = getShopId(storeName);
@@ -83,17 +75,25 @@ public class ParseStoresJsonMethod {
 
 
         @Override
-        public List<JsonProducts.Item> filter() {
+        public List<Item> filter() {
             if (keyWord.isEmpty()) return this.itemList;
-            List<JsonProducts.Item> isFiltered = new ArrayList<>();
-            for (JsonProducts.Item item : itemList) {
+            List<Item> isFiltered = new ArrayList<>();
+            for (Item item : itemList) {
                 String curItem = item.getName().toLowerCase();
                 boolean contains = curItem.contains(keyWord);
                 if (contains) isFiltered.add(item);
             }
-            if (isFiltered.isEmpty()) isFiltered.add(new JsonProducts.Item());
-            return isFiltered;
+            if (isFiltered.isEmpty()) isFiltered.add(new Item());
+            return Sort(isFiltered);
         }
+
+        @Override
+        public List<JsonProducts.Item> Sort(List<JsonProducts.Item> itemList) {
+            List<JsonProducts.Item> sortedList = new ArrayList<>(itemList);
+            sortedList.sort(Comparator.comparingDouble(Item::getPriceafter));
+            return sortedList;
+        }
+
 
         private static int getShopId(String storeName) {
             if (idByStore.get(storeName) == null) {
@@ -105,17 +105,6 @@ public class ParseStoresJsonMethod {
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
-
-        static int getCityId(String url) {
-            String regex = "&city_id=(\\d+)";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(url);
-            if (matcher.find()) {
-                String city_id = matcher.group(1);
-                return Integer.parseInt(city_id);
-            }
-            return -1;
-        }
 
         String parse() throws IOException {
 
@@ -150,10 +139,10 @@ public class ParseStoresJsonMethod {
             return response.parse().text();
         }
 
-        public List<JsonProducts.Item> makeItem(String resParse) throws JsonProcessingException {
-            JsonProducts.Items items = objectMapper.readValue(resParse, JsonProducts.Items.class);
+        public List<Item> makeItem(String resParse) throws JsonProcessingException {
+            Items items = objectMapper.readValue(resParse, Items.class);
             items.setStoreName(this.storeName);
-            List<JsonProducts.Item> itemList = items.getProducts();
+            List<Item> itemList = items.getProducts();
             if (itemList.isEmpty()) {
                 System.out.println("Акции не найдены");
             }
