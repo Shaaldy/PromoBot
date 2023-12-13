@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.example.JsonPars.JsonProducts.*;
+import static org.example.JsonPars.Stores.idByStore;
 
 public class ParseStoresJsonMethod {
 
     public static List<List<Item>> JsonParser(List<String> storeNames, String keyWord) throws IOException {
         List<List<Item>> result = new ArrayList<>();
         for (String storeName : storeNames) {
-            //result.append("\n\n`").append(storeName).append("`\n\n");
             ToParse toParse = new ToParse(storeName.toLowerCase(), keyWord);
             List<Item> items = toParse.filter();
             result.add(items);
@@ -28,25 +28,7 @@ public class ParseStoresJsonMethod {
         return JsonParser(storeNames, "");
     }
 
-    private static final Map<String, Integer> idByStore = new HashMap<>();
 
-    static {
-        idByStore.put("пятерочка", 9);
-        idByStore.put("магнит", 2);
-        idByStore.put("магнит семейный", 26);
-        idByStore.put("магнит экстра", 2391);
-        idByStore.put("аленка", 1840);
-        idByStore.put("ариант", 852);
-        idByStore.put("ашан", 1465);
-        idByStore.put("бристоль", 720);
-        idByStore.put("кировский", 112);
-        idByStore.put("верный", 39);
-        idByStore.put("кб", 100);
-        idByStore.put("лента", 361);
-        idByStore.put("монетка", 96);
-        idByStore.put("окей", 41);
-        idByStore.put("пивко", 1357);
-    }
 
     public static List<List<Item>> JsonParser(String keyWord) throws IOException {
         List<String> storeNames = new ArrayList<>(idByStore.keySet());
@@ -64,13 +46,13 @@ public class ParseStoresJsonMethod {
         List<Item> itemList;
 
         ToParse(String storeName, String keyWord) throws IOException {
+            this.keyWord = keyWord.toLowerCase();
+            this.storeName = storeName;
             Integer shopId = getShopId(storeName);
-
             this.url = String.format("https://skidkaonline.ru/apiv3/products/?limit=600&offset=0&shop_id=%s&city_id=49&fields=id,name,name2,shops_ids,url,noted,discount_url,discount_name,date,notalladdr,image336,imagefull,brands,pricebefore,priceafter,discount_type,discount,externalurl,countPlus,countMinus,comments,desc,color,daystitle,liked,started_today,published_today", shopId);
             String resParse = parse();
             this.itemList = makeItem(resParse);
-            this.keyWord = keyWord.toLowerCase();
-            this.storeName = storeName;
+
         }
 
 
@@ -143,6 +125,9 @@ public class ParseStoresJsonMethod {
             Items items = objectMapper.readValue(resParse, Items.class);
             items.setStoreName(this.storeName);
             List<Item> itemList = items.getProducts();
+            for(Item item: itemList){
+                item.setStoreName(this.storeName);
+            }
             if (itemList.isEmpty()) {
                 System.out.println("Акции не найдены");
             }

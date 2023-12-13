@@ -22,6 +22,8 @@ public class JsonProducts {
         @JsonProperty("name")
         private String name;
 
+        private String storeName;
+
         @JsonProperty("imagefull")
         private Image image;
 
@@ -75,12 +77,19 @@ public class JsonProducts {
 
         public String toString() {
             if (getPriceafter() > 0) {
-                return "Название " + getName() + "\nЦена до скидки " + getPricebefore() + " \nпосле скидки " + getPriceafter()
+                return getStoreName() + "\n" + "Название " + getName() + "\nЦена до скидки " + getPricebefore() + " \nпосле скидки " + getPriceafter()
                         + "\nВремя действия акции " + getStartdate() + " - " + getEnddate() + "\n" + getImage();
             }
-            return "Название " + getName() + "\nВремя действия акции " + getStartdate() + " - " + getEnddate() + "\n" + getImage();
+            return getStoreName() + "\n" + "Название " + getName() + "\nВремя действия акции " + getStartdate() + " - " + getEnddate() + "\n" + getImage();
         }
 
+        public void setStoreName(String storeName) {
+            this.storeName = storeName;
+        }
+
+        public String getStoreName() {
+            return storeName;
+        }
     }
         @JsonIgnoreProperties(ignoreUnknown = true)
         static class Items {
