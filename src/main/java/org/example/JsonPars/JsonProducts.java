@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.Objects;
 
 public class JsonProducts {
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -12,9 +13,9 @@ public class JsonProducts {
         @JsonProperty("id")
         private String id;
         @JsonProperty("pricebefore")
-        private double pricebefore;
+        private String pricebefore;
         @JsonProperty("priceafter")
-        private double priceafter;
+        private String priceafter;
         @JsonProperty("startdate")
         private String startdate;
         @JsonProperty("enddate")
@@ -24,20 +25,22 @@ public class JsonProducts {
 
         private String storeName;
 
+
         @JsonProperty("imagefull")
         private Image image;
 
 
-        public Item() {
+        public Item(String storeName) {
             this.id = "";
             this.startdate = "";
             this.enddate = "";
             this.name = "Такого товара нет";
             this.image = new Image();
+            this.storeName = storeName;
 
         }
 
-        public Item(String name, Double price1, Double price2, String data1, String data2, String img){
+        public Item(String name, String price1, String price2, String data1, String data2, String img){
             this.name = name;
             this.pricebefore = price1;
             this.priceafter = price2;
@@ -50,11 +53,11 @@ public class JsonProducts {
             return this.id;
         }
 
-        public double getPricebefore() {
+        public String getPricebefore() {
             return this.pricebefore;
         }
 
-        public double getPriceafter() {
+        public String getPriceafter() {
             return this.priceafter;
         }
 
@@ -76,11 +79,11 @@ public class JsonProducts {
         }
 
         public String toString() {
-            if (getPriceafter() > 0) {
-                return getStoreName() + "\n" + "Название " + getName() + "\nЦена до скидки " + getPricebefore() + " \nпосле скидки " + getPriceafter()
-                        + "\nВремя действия акции " + getStartdate() + " - " + getEnddate() + "\n" + getImage();
+            if (!Objects.equals(getPriceafter(), "0")) {
+                return getStoreName() + "\n" + getName() + "\nЦена до скидки " + getPricebefore() + " \nпосле скидки " + getPriceafter()
+                        +"\n" + getStartdate() + " - " + getEnddate() + "\n" + getImage();
             }
-            return getStoreName() + "\n" + "Название " + getName() + "\nВремя действия акции " + getStartdate() + " - " + getEnddate() + "\n" + getImage();
+            return getStoreName() + "\n" + getName() + "\n"+ getStartdate() + " - " + getEnddate() + "\n" + getImage();
         }
 
         public void setStoreName(String storeName) {
