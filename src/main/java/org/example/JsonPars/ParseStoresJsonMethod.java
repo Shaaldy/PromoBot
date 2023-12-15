@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 
 import static org.example.JsonPars.JsonProducts.*;
 import static org.example.JsonPars.Stores.idByStore;
@@ -72,7 +73,7 @@ public class ParseStoresJsonMethod {
         @Override
         public List<JsonProducts.Item> Sort(List<JsonProducts.Item> itemList) {
             List<JsonProducts.Item> sortedList = new ArrayList<>(itemList);
-            sortedList.sort(Comparator.comparingDouble(Item::getPriceafter));
+            sortedList.sort(Comparator.comparingDouble((ToDoubleFunction<? super Item>) item -> Double.parseDouble(item.getPriceafter())));
             return sortedList;
         }
 
