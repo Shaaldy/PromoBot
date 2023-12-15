@@ -6,9 +6,12 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-import static org.example.JsonPars.JsonProducts.*;
+import static org.example.JsonPars.JsonProducts.Item;
+import static org.example.JsonPars.JsonProducts.Items;
 import static org.example.JsonPars.Stores.idByStore;
 
 public class ParseStoresJsonMethod {
@@ -65,14 +68,22 @@ public class ParseStoresJsonMethod {
                 boolean contains = curItem.contains(keyWord);
                 if (contains) isFiltered.add(item);
             }
-            if (isFiltered.isEmpty()) isFiltered.add(new Item());
+            if (isFiltered.isEmpty()) isFiltered.add(new Item(this.storeName));
             return Sort(isFiltered);
         }
 
         @Override
         public List<JsonProducts.Item> Sort(List<JsonProducts.Item> itemList) {
+            if (itemList.size() == 1) return itemList;
             List<JsonProducts.Item> sortedList = new ArrayList<>(itemList);
-            sortedList.sort(Comparator.comparingDouble(Item::getPriceafter));
+            sortedList.sort(Comparator.comparingDouble(item -> {
+                String priceAfter = item.getPriceafter();
+                try {
+                    return Double.parseDouble(priceAfter);
+                } catch (NumberFormatException e) {
+                    return Double.MAX_VALUE;
+                }
+            }));
             return sortedList;
         }
 
