@@ -1,6 +1,7 @@
 package org.example.FakeData;
 
 import org.example.JsonPars.Filterable;
+import org.example.JsonPars.JsonProducts;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -8,18 +9,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.ToDoubleFunction;
-
-import static org.example.JsonPars.JsonProducts.Item;
 
 public class FakeDataParser implements Filterable {
     private final String keyWord;
-    private List<Item> fakeData;
+    private List<JsonProducts.Item> fakeData;
 
     public FakeDataParser(String filePath, String keyWord) {
         try {
             fakeData = readItemsFromFile(filePath);
-            for (Item item : fakeData) {
+            for (JsonProducts.Item item : fakeData) {
                 System.out.println(item);
             }
         } catch (IOException e) {
@@ -28,13 +26,13 @@ public class FakeDataParser implements Filterable {
         this.keyWord = keyWord.toLowerCase();
     }
 
-    private static List<Item> readItemsFromFile(String filePath) throws IOException {
-        List<Item> items = new ArrayList<>();
+    private static List<JsonProducts.Item> readItemsFromFile(String filePath) throws IOException {
+        List<JsonProducts.Item> items = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String name = null;
-            String price1 = null;
-            String price2 = null;
+            double price1 = 0.0;
+            double price2 = 0.0;
             String data1 = null;
             String data2 = null;
             String image = null;
@@ -48,10 +46,10 @@ public class FakeDataParser implements Filterable {
                         name = line;
                         break;
                     case 1:
-                        price1 = line;
+                        price1 = Double.parseDouble(line);
                         break;
                     case 2:
-                        price2 = line;
+                        price2 = Double.parseDouble(line);
                         break;
                     case 3:
                         data1 = line;
@@ -61,7 +59,7 @@ public class FakeDataParser implements Filterable {
                         break;
                     case 5:
                         image = line;
-                        items.add(new Item(name, price1, price2, data1, data2, image));
+                        items.add(new JsonProducts.Item(name, price1, price2, data1, data2, image));
                         break;
                 }
                 lineCount++;
@@ -71,22 +69,22 @@ public class FakeDataParser implements Filterable {
         return items;
     }
     @Override
-    public List<Item> filter() {
+    public List<JsonProducts.Item> filter() {
         if (keyWord.isEmpty()) return this.fakeData;
-        List<Item> isFiltered = new ArrayList<>();
-        for (Item item : fakeData) {
+        List<JsonProducts.Item> isFiltered = new ArrayList<>();
+        for (JsonProducts.Item item : fakeData) {
             String curItem = item.getName().toLowerCase();
             boolean contains = curItem.contains(keyWord);
             if (contains) isFiltered.add(item);
         }
-        if (isFiltered.isEmpty()) isFiltered.add(new Item("null"));
+        if (isFiltered.isEmpty()) isFiltered.add(new JsonProducts.Item());
         return Sort(isFiltered);
     }
 
     @Override
-    public List<Item> Sort(List<Item> itemList) {
-        List<Item> sortedList = new ArrayList<>(itemList);
-        sortedList.sort(Comparator.comparingDouble((ToDoubleFunction<? super Item>) item -> Double.parseDouble(item.getPriceafter())));
+    public List<JsonProducts.Item> Sort(List<JsonProducts.Item> itemList) {
+        List<JsonProducts.Item> sortedList = new ArrayList<>(itemList);
+        sortedList.sort(Comparator.comparingDouble(JsonProducts.Item::getPriceafter));
         return sortedList;
     }
 
