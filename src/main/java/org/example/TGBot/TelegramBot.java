@@ -1,6 +1,8 @@
 package org.example.TGBot;
 
+import org.example.JsonPars.JsonParserInterface;
 import org.example.JsonPars.JsonProducts;
+import org.example.JsonPars.ParseStoresJsonMethod;
 import org.example.UserState.UserState;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -37,7 +39,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText().toLowerCase();
             long chatId = update.getMessage().getChatId();
             try {
-                messageProcessing(chatId, messageText, update);
+                processUserMessage(chatId, messageText, update);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -66,15 +68,19 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
-    private void messageProcessing(long chatId, String messageText, Update update) throws IOException {
+    private void processUserMessage(long chatId, String messageText, Update update) throws IOException {
         System.out.println(messageText + "\n");
+
         if (messageText.startsWith("/")) {
             Command command = new Command();
             String botResponse = command.hasCommand(messageText) ? command.getResponse(messageText) : command.getResponse("default");
-            Boolean isComand = true;
-            sendMessage(chatId, botResponse, isComand);
-        } else {
-            List<List<JsonProducts.Item>> data = Service.getDataForPage(messageText);
+            Boolean isCommand = true;
+            sendMessage(chatId, botResponse, isCommand);
+        }
+        else {
+            JsonParserInterface jsonParser = new ParseStoresJsonMethod();
+            Service service = new Service(jsonParser);
+            List<List<JsonProducts.Item>> data = service.getDataForPage(messageText);
             userState.put(chatId, new UserState(data, 0, 0));
             sendMessage(chatId, data.get(0).get(0).toString());
         }

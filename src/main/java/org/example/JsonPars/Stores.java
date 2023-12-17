@@ -10,6 +10,7 @@ public class Stores {
         idByStore.put("пятерочка", 9);
         idByStore.put("магнит", 2);
         idByStore.put("аленка", 1840);
+        idByStore.put("алёнка", 1840);
         idByStore.put("ариант", 852);
         idByStore.put("бристоль", 720);
         idByStore.put("кировский", 112);
@@ -17,6 +18,7 @@ public class Stores {
         idByStore.put("кб", 100);
         idByStore.put("монетка", 96);
         idByStore.put("пивко", 1357);
+        idByStore.put("пятёрочка", 9);
     }
 
     public static String getKeyByValue(Integer value) {

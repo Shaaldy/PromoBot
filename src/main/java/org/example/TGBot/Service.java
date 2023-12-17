@@ -1,7 +1,7 @@
 package org.example.TGBot;
 
+import org.example.JsonPars.JsonParserInterface;
 import org.example.JsonPars.JsonProducts;
-import org.example.JsonPars.ParseStoresJsonMethod;
 import org.example.UserState.UserState;
 
 import java.io.IOException;
@@ -13,22 +13,26 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Service {
-    static List<List<JsonProducts.Item>> getDataForPage(String messageText) throws IOException {
+    private final JsonParserInterface jsonParser;
+
+    public Service(JsonParserInterface jsonParser) {
+        this.jsonParser = jsonParser;
+    }
+
+    public List<List<JsonProducts.Item>> getDataForPage(String messageText) throws IOException {
         List<List<JsonProducts.Item>> curData = new ArrayList<>();
+        List<String> stores = new ArrayList<>();
+        String keyWord = "";
         if (messageText.length() <= 100 && messageText.trim().split("\\s+").length >= 3 && messageText.contains("@")) {
             List<String> words = Arrays.asList(messageText.split("\\s+"));
             int atIndex = words.indexOf("@");
-            List<String> stores = new ArrayList<>();
-            String keyWord = "";
             if (atIndex != -1 && atIndex < words.size() - 1) {
                 stores = words.subList(0, atIndex);
                 keyWord = String.join(" ", words.subList(atIndex + 1, words.size()));
             }
-            curData = ParseStoresJsonMethod.JsonParser(stores, keyWord);
         } else if (messageText.length() <= 100 && !messageText.contains("@")) {
             String[] words = messageText.split("\\s+");
             String storesFromFile = fileRead();
-            List<String> stores = new ArrayList<>();
             for (String word : words) {
                 if (storesFromFile.contains(word)) {
                     stores.add(word);
@@ -36,16 +40,16 @@ public class Service {
             }
             if (stores.isEmpty()) {
                 String keyword = String.join(" ", words);
-                curData = ParseStoresJsonMethod.JsonParser(keyword);
-            } else {
-                curData = ParseStoresJsonMethod.JsonParser(stores);
             }
         }
+        jsonParser.setKeyWord(keyWord);
+        jsonParser.setStoreName(stores);
+        curData = jsonParser.JsonParser();
         return curData;
     }
 
     private static String fileRead() throws IOException {
-        Path path = Paths.get("src/main/java/org/example/JsonPars/Stores.txt");
+        Path path = Paths.get("C:\\Users\\shald\\IdeaProjects\\PromoBot\\src\\main\\java\\org\\example\\JsonPars\\Stores.txt");
         return new String(Files.readAllBytes(path));
     }
 
@@ -92,9 +96,7 @@ public class Service {
             curState.setUserCurrentPage(currentPage);
             curState.setUserCurrentStore(currentStore);
             telegramBot.setUserData(chatId, curState);
-            System.out.println("Current page: " + telegramBot.getUserState(chatId).getUserCurrentPage());
-            System.out.println("Current store: " + telegramBot.getUserState(chatId).getUserCurrentStore() + " " + telegramBot.getUserState(chatId).getUserData().get(currentStore).get(currentPage).getStoreName());
-        }
+         }
 
     }
 }

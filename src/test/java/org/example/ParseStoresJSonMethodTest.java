@@ -4,16 +4,18 @@ import org.example.FakeData.FakeDataParser;
 import org.example.JsonPars.JsonProducts;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class ParseStoresJSonMethodTest {
-    String filePath = "src/test/java/org/example/FakeData/TestData.txt";
+
 
     @Test
-    public void testFilterSorted1() {
+    public void testFilterSorted1() throws IOException {
+        List<List<JsonProducts.Item>> expectedResult = new ArrayList<>();
         List<JsonProducts.Item> expectedResults = new ArrayList<>();
         expectedResults.add(new JsonProducts.Item("Кетчуп Махеевъ Чили 300г", "99.99", "74.99", "2023-12-12",
                 "2023-12-18", "https://skidkaonline.ru/img/p/2023/12/488793/54602958-488793-ketchup-makheev-chili-300g.jpg?t=t1702350137"));
@@ -21,21 +23,25 @@ public class ParseStoresJSonMethodTest {
                 "2023-12-18", "https://skidkaonline.ru/img/p/2023/12/488793/54602960-488793-ketchup-heinz-italyanskijj-320g.jpg?t=t1702350137"));
         expectedResults.add(new JsonProducts.Item("Кетчуп Heinz томатный 320г", "190.99", "120.99", "2023-12-12",
                 "2023-12-18", "https://skidkaonline.ru/img/p/2023/12/488793/54602959-488793-ketchup-heinz-tomatnyjj-320g.jpg?t=t1702350137"));
-        FakeDataParser fakeDataParser = new FakeDataParser(filePath, "кетчуп");
-        List<JsonProducts.Item> filterSortedData = fakeDataParser.filter();
-        assertEquals(3, filterSortedData.size());
+
+        expectedResult.add(expectedResults);
+        FakeDataParser fakeDataParser = new FakeDataParser( List.of("store1"), "кетчуп");
+        List<List<JsonProducts.Item>> filterSortedData = fakeDataParser.JsonParser();
+        assertEquals(1, filterSortedData.size());
+        assertEquals(3, filterSortedData.get(0).size());
         for (int i = 0; i < filterSortedData.size(); ++i) {
-            assertEquals(expectedResults.get(i).getName(), filterSortedData.get(i).getName());
-            assertEquals(expectedResults.get(i).getPriceafter(), filterSortedData.get(i).getPriceafter());
-            assertEquals(expectedResults.get(i).getPricebefore(), filterSortedData.get(i).getPricebefore());
-            assertEquals(expectedResults.get(i).getEnddate(), filterSortedData.get(i).getEnddate());
-            assertEquals(expectedResults.get(i).getStartdate(), filterSortedData.get(i).getStartdate());
-            assertEquals(expectedResults.get(i).getImage(), filterSortedData.get(i).getImage());
+            assertEquals(expectedResult.get(0).get(i).getName(), filterSortedData.get(0).get(i).getName());
+            assertEquals(expectedResult.get(0).get(i).getPriceafter(), filterSortedData.get(0).get(i).getPriceafter());
+            assertEquals(expectedResult.get(0).get(i).getPricebefore(), filterSortedData.get(0).get(i).getPricebefore());
+            assertEquals(expectedResult.get(0).get(i).getEnddate(), filterSortedData.get(0).get(i).getEnddate());
+            assertEquals(expectedResult.get(0).get(i).getStartdate(), filterSortedData.get(0).get(i).getStartdate());
+            assertEquals(expectedResult.get(0).get(i).getImage(), filterSortedData.get(0).get(i).getImage());
         }
     }
 
     @Test
-    public void testFilterSorted2() {
+    public void testFilterSorted2() throws IOException {
+        List<List<JsonProducts.Item>> expectedResult = new ArrayList<>();
         List<JsonProducts.Item> expectedResults = new ArrayList<>();
         expectedResults.add(new JsonProducts.Item("Конфеты HALLS Mini Mints со вкусом мяты 12.5г", "48.99", "39.99", "2023-12-12",
                 "2023-12-18", "https://skidkaonline.ru/img/p/2023/12/488793/54602955-488793-konfety-halls-mini-mints-so-vkusom-myaty-125g.jpg?t=t1702350136"));
@@ -53,17 +59,19 @@ public class ParseStoresJSonMethodTest {
         expectedResults.add(new JsonProducts.Item("Конфеты Райские Облака Суфле сливочное", "549.99", "459.99", "2023-12-12",
                 "2023-12-18", "https://skidkaonline.ru/img/p/2023/12/488793/54602945-488793-konfety-rajjskie-oblaka-sufle-slivochnoe.jpg?t=t1702350136"));
 
-
-        FakeDataParser fakeDataParser = new FakeDataParser(filePath, "конфет");
-        List<JsonProducts.Item> filterSortedData = fakeDataParser.filter();
-        assertEquals(5, filterSortedData.size());
+        expectedResult.add(expectedResults);
+        FakeDataParser fakeDataParser = new FakeDataParser(List.of("store1"), "конфет");
+        int size = fakeDataParser.getSize();
+        List<List<JsonProducts.Item>> filterSortedData = fakeDataParser.JsonParser();
+        assertEquals(expectedResult.size(), filterSortedData.size());
+        assertEquals(expectedResult.get(0).size(), filterSortedData.get(0).size());
         for (int i = 0; i < filterSortedData.size(); ++i) {
-            assertEquals(expectedResults.get(i).getName(), filterSortedData.get(i).getName());
-            assertEquals(expectedResults.get(i).getPriceafter(), filterSortedData.get(i).getPriceafter());
-            assertEquals(expectedResults.get(i).getPricebefore(), filterSortedData.get(i).getPricebefore());
-            assertEquals(expectedResults.get(i).getEnddate(), filterSortedData.get(i).getEnddate());
-            assertEquals(expectedResults.get(i).getStartdate(), filterSortedData.get(i).getStartdate());
-            assertEquals(expectedResults.get(i).getImage(), filterSortedData.get(i).getImage());
+            assertEquals(expectedResult.get(0).get(i).getName(), filterSortedData.get(0).get(i).getName());
+            assertEquals(expectedResult.get(0).get(i).getPriceafter(), filterSortedData.get(0).get(i).getPriceafter());
+            assertEquals(expectedResult.get(0).get(i).getPricebefore(), filterSortedData.get(0).get(i).getPricebefore());
+            assertEquals(expectedResult.get(0).get(i).getEnddate(), filterSortedData.get(0).get(i).getEnddate());
+            assertEquals(expectedResult.get(0).get(i).getStartdate(), filterSortedData.get(0).get(i).getStartdate());
+            assertEquals(expectedResult.get(0).get(i).getImage(), filterSortedData.get(0).get(i).getImage());
         }
     }
 

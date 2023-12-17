@@ -37,7 +37,18 @@ public class JsonProducts {
             this.name = "Такого товара нет";
             this.image = new Image();
             this.storeName = storeName;
+            this.pricebefore = "";
+            this.priceafter = "";
 
+        }
+        public Item() {
+            this.id = "";
+            this.startdate = "";
+            this.enddate = "";
+            this.name = "Такого товара нет";
+            this.pricebefore = "";
+            this.priceafter = "";
+            this.image = new Image();
         }
 
         public Item(String name, String price1, String price2, String data1, String data2, String img){
@@ -79,7 +90,7 @@ public class JsonProducts {
         }
 
         public String toString() {
-            if (!Objects.equals(getPriceafter(), "0")) {
+            if (!Objects.equals(getPriceafter(), "")) {
                 return getStoreName() + "\n" + getName() + "\nЦена до скидки " + getPricebefore() + " \nпосле скидки " + getPriceafter()
                         +"\n" + getStartdate() + " - " + getEnddate() + "\n" + getImage();
             }

@@ -14,12 +14,38 @@ import static org.example.JsonPars.JsonProducts.Item;
 import static org.example.JsonPars.JsonProducts.Items;
 import static org.example.JsonPars.Stores.idByStore;
 
-public class ParseStoresJsonMethod {
+public class ParseStoresJsonMethod implements JsonParserInterface {
 
-    public static List<List<Item>> JsonParser(List<String> storeNames, String keyWord) throws IOException {
+    private List<String> storeNames;
+    private String keyWord;
+    public ParseStoresJsonMethod(){
+        this.storeNames = null;
+        this.keyWord = "";
+    }
+    ParseStoresJsonMethod(List<String> storeNames, String keyWord){
+        this.storeNames = storeNames;
+        this.keyWord = keyWord;
+    }
+
+    ParseStoresJsonMethod(List<String> storeNames){
+        this.storeNames = storeNames;
+        this.keyWord = "";
+    }
+
+    ParseStoresJsonMethod(String keyWord){
+        this.storeNames = new ArrayList<>(idByStore.keySet());
+        this.keyWord = keyWord;
+    }
+    @Override
+    public List<List<Item>> JsonParser() {
         List<List<Item>> result = new ArrayList<>();
         for (String storeName : storeNames) {
-            ToParse toParse = new ToParse(storeName.toLowerCase(), keyWord);
+            ToParse toParse;
+            try {
+                toParse = new ToParse(storeName.toLowerCase(), keyWord);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             List<Item> items = toParse.filter();
             result.add(items);
         }
@@ -27,15 +53,14 @@ public class ParseStoresJsonMethod {
         return result;
     }
 
-    public static List<List<Item>> JsonParser(List<String> storeNames) throws IOException {
-        return JsonParser(storeNames, "");
+    @Override
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
     }
 
-
-
-    public static List<List<Item>> JsonParser(String keyWord) throws IOException {
-        List<String> storeNames = new ArrayList<>(idByStore.keySet());
-        return JsonParser(storeNames, keyWord);
+    @Override
+    public void setStoreName(List<String> storeNames) {
+        this.storeNames = storeNames;
     }
 
 
@@ -69,11 +94,11 @@ public class ParseStoresJsonMethod {
                 if (contains) isFiltered.add(item);
             }
             if (isFiltered.isEmpty()) isFiltered.add(new Item(this.storeName));
-            return Sort(isFiltered);
+            return sort(isFiltered);
         }
 
         @Override
-        public List<JsonProducts.Item> Sort(List<JsonProducts.Item> itemList) {
+        public List<JsonProducts.Item> sort(List<JsonProducts.Item> itemList) {
             List<JsonProducts.Item> sortedList = new ArrayList<>(itemList);
             sortedList.sort(Comparator.comparingDouble(item -> {
                 String priceAfter = item.getPriceafter();

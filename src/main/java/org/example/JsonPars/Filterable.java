@@ -5,6 +5,6 @@ import java.util.List;
 public interface Filterable {
     List<JsonProducts.Item> filter();
 
-    List<JsonProducts.Item> Sort(List<JsonProducts.Item> itemList);
+    List<JsonProducts.Item> sort(List<JsonProducts.Item> itemList);
 
 }
