@@ -18,27 +18,18 @@ public class ParseStoresJsonMethod implements JsonParserInterface {
 
     private List<String> storeNames;
     private String keyWord;
-    public ParseStoresJsonMethod(){
+
+    public ParseStoresJsonMethod() {
         this.storeNames = null;
         this.keyWord = "";
     }
-    ParseStoresJsonMethod(List<String> storeNames, String keyWord){
-        this.storeNames = storeNames;
-        this.keyWord = keyWord;
-    }
 
-    ParseStoresJsonMethod(List<String> storeNames){
-        this.storeNames = storeNames;
-        this.keyWord = "";
-    }
-
-    ParseStoresJsonMethod(String keyWord){
-        this.storeNames = new ArrayList<>(idByStore.keySet());
-        this.keyWord = keyWord;
-    }
     @Override
     public List<List<Item>> JsonParser() {
         List<List<Item>> result = new ArrayList<>();
+        if (storeNames.isEmpty()) {
+            storeNames = new ArrayList<>(idByStore.keySet());
+        }
         for (String storeName : storeNames) {
             ToParse toParse;
             try {
@@ -160,7 +151,7 @@ public class ParseStoresJsonMethod implements JsonParserInterface {
             Items items = objectMapper.readValue(resParse, Items.class);
             items.setStoreName(this.storeName);
             List<Item> itemList = items.getProducts();
-            for(Item item: itemList){
+            for (Item item : itemList) {
                 item.setStoreName(this.storeName);
             }
             if (itemList.isEmpty()) {

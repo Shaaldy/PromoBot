@@ -4,8 +4,9 @@ import org.example.JsonPars.Filterable;
 import org.example.JsonPars.JsonParserInterface;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,22 +31,75 @@ public class FakeDataParser implements JsonParserInterface{
     @Override
     public List<List<Item>> JsonParser() {
         List<List<Item>> result = new ArrayList<>();
+        if (storeName.isEmpty()){
+            storeName.add("store1");
+            storeName.add("store2");
+        }
         try {
             for (String storeName : storeName) {
-                List<Item> fakeStore = readItemsFromFile("src/test/java/org/example/FakeData/" + storeName + ".txt");
+                List<Item> fakeStore = readItemsFromResource(storeName + ".txt");
                 fakesStore.add(fakeStore);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error reading fake data files");
+            throw new RuntimeException("Error reading fake data resources");
         }
-        for (List<Item> fakeStore: fakesStore) {
+        for (List<Item> fakeStore : fakesStore) {
             Parse parse = new Parse(fakeStore, this.keyWord);
             List<Item> items = parse.filter();
             result.add(items);
         }
         return result;
     }
+
+    private List<Item> readItemsFromResource(String resourceName) throws IOException {
+        List<Item> items = new ArrayList<>();
+
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourceName)) {
+            assert inputStream != null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                String name = null;
+                String price1 = null;
+                String price2 = null;
+                String data1 = null;
+                String data2 = null;
+                String image = null;
+
+                String line;
+                int lineCount = 0;
+
+                while ((line = reader.readLine()) != null) {
+                    switch (lineCount % 6) {
+                        case 0:
+                            name = line;
+                            break;
+                        case 1:
+                            price1 = line;
+                            break;
+                        case 2:
+                            price2 = line;
+                            break;
+                        case 3:
+                            data1 = line;
+                            break;
+                        case 4:
+                            data2 = line;
+                            break;
+                        case 5:
+                            image = line;
+                            items.add(new Item(name, price1, price2, data1, data2, image));
+                            break;
+                    }
+                    lineCount++;
+                }
+            }
+        }
+
+        return items;
+    }
+
+
+
 
     @Override
     public void setKeyWord(String keyWord) {
@@ -56,52 +110,6 @@ public class FakeDataParser implements JsonParserInterface{
     public void setStoreName(List<String> storeName){
         this.storeName = storeName;
     }
-    private static List<Item> readItemsFromFile(String file) throws IOException {
-        List<Item> items = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String name = null;
-            String price1 = null;
-            String price2 = null;
-            String data1 = null;
-            String data2 = null;
-            String image = null;
-
-            String line;
-            int lineCount = 0;
-
-            while ((line = reader.readLine()) != null) {
-                switch (lineCount % 6) {
-                    case 0:
-                        name = line;
-                        break;
-                    case 1:
-                        price1 = line;
-                        break;
-                    case 2:
-                        price2 = line;
-                        break;
-                    case 3:
-                        data1 = line;
-                        break;
-                    case 4:
-                        data2 = line;
-                        break;
-                    case 5:
-                        image = line;
-                        items.add(new Item(name, price1, price2, data1, data2, image));
-                        break;
-                }
-                lineCount++;
-            }
-        }
-
-        return items;
-    }
-
-
-
-
     private static class Parse implements Filterable{
         private final List<Item> fakeStore;
         private final String keyWord;
@@ -137,5 +145,4 @@ public class FakeDataParser implements JsonParserInterface{
             return sortedList;
         }
     }
-
 }

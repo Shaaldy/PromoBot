@@ -5,12 +5,11 @@ import org.example.JsonPars.JsonProducts;
 import org.example.UserState.UserState;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.example.JsonPars.Stores.idByStore;
 
 public class Service {
     private final JsonParserInterface jsonParser;
@@ -20,7 +19,7 @@ public class Service {
     }
 
     public List<List<JsonProducts.Item>> getDataForPage(String messageText) throws IOException {
-        List<List<JsonProducts.Item>> curData = new ArrayList<>();
+        List<List<JsonProducts.Item>> curData;
         List<String> stores = new ArrayList<>();
         String keyWord = "";
         if (messageText.length() <= 100 && messageText.trim().split("\\s+").length >= 3 && messageText.contains("@")) {
@@ -32,25 +31,20 @@ public class Service {
             }
         } else if (messageText.length() <= 100 && !messageText.contains("@")) {
             String[] words = messageText.split("\\s+");
-            String storesFromFile = fileRead();
+            String storeFromHash = idByStore.keySet().toString();
             for (String word : words) {
-                if (storesFromFile.contains(word)) {
+                if (storeFromHash.contains(word)) {
                     stores.add(word);
                 }
             }
             if (stores.isEmpty()) {
-                String keyword = String.join(" ", words);
+                keyWord = String.join(" ", words);
             }
         }
         jsonParser.setKeyWord(keyWord);
         jsonParser.setStoreName(stores);
         curData = jsonParser.JsonParser();
         return curData;
-    }
-
-    private static String fileRead() throws IOException {
-        Path path = Paths.get("C:\\Users\\shald\\IdeaProjects\\PromoBot\\src\\main\\java\\org\\example\\JsonPars\\Stores.txt");
-        return new String(Files.readAllBytes(path));
     }
 
     public static class PaginationHandler {
@@ -96,7 +90,7 @@ public class Service {
             curState.setUserCurrentPage(currentPage);
             curState.setUserCurrentStore(currentStore);
             telegramBot.setUserData(chatId, curState);
-         }
+        }
 
     }
 }

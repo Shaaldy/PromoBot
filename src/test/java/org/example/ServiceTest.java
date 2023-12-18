@@ -33,7 +33,6 @@ public class ServiceTest {
 
         List<List<JsonProducts.Item>> result = service.getDataForPage(messageText);
 
-        // Проверяем ожидаемый результат и результат вызова
         assertEquals(expectedResult.size(), result.size());
         assertEquals(3, result.get(0).size());
         for (int i = 0; i < result.size(); ++i) {
