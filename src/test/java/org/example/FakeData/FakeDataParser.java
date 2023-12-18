@@ -16,8 +16,6 @@ import static org.example.JsonPars.JsonProducts.Item;
 public class FakeDataParser implements JsonParserInterface{
     private String keyWord;
     private List<String> storeName;
-    private static final List<List<Item>> fakesStore = new ArrayList<>();
-    public int getSize(){return fakesStore.size(); }
 
     public FakeDataParser(){
         this.storeName = null;
@@ -30,6 +28,7 @@ public class FakeDataParser implements JsonParserInterface{
     }
     @Override
     public List<List<Item>> JsonParser() {
+        List<List<Item>> fakesStore = new ArrayList<>();
         List<List<Item>> result = new ArrayList<>();
         if (storeName.isEmpty()){
             storeName.add("store1");
@@ -44,6 +43,7 @@ public class FakeDataParser implements JsonParserInterface{
             e.printStackTrace();
             throw new RuntimeException("Error reading fake data resources");
         }
+        int size = fakesStore.size();
         for (List<Item> fakeStore : fakesStore) {
             Parse parse = new Parse(fakeStore, this.keyWord);
             List<Item> items = parse.filter();

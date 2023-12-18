@@ -61,9 +61,8 @@ public class ParseStoresJSonMethodTest {
 
         expectedResult.add(expectedResults);
         FakeDataParser fakeDataParser = new FakeDataParser(List.of("store1"), "конфет");
-        int size = fakeDataParser.getSize();
         List<List<JsonProducts.Item>> filterSortedData = fakeDataParser.JsonParser();
-        assertEquals(expectedResult.size(), filterSortedData.size());
+        assertEquals(1, filterSortedData.size());
         assertEquals(expectedResult.get(0).size(), filterSortedData.get(0).size());
         for (int i = 0; i < filterSortedData.size(); ++i) {
             assertEquals(expectedResult.get(0).get(i).getName(), filterSortedData.get(0).get(i).getName());
